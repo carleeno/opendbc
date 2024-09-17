@@ -24,9 +24,14 @@ class CarState(CarStateBase):
     ret = structs.CarState()
 
     # Vehicle speed
+    ui_speed_units = self.can_define.dv["DI_speed"]["DI_uiSpeedUnits"].get(int(cp.vl["DI_speed"]["DI_uiSpeedUnits"]), None)
+
     ret.vEgoRaw = cp.vl["ESP_B"]["ESP_vehicleSpeed"] * CV.KPH_TO_MS
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
-    ret.standstill = cp.vl["ESP_B"]["ESP_vehicleStandstillSts"] == 1
+    if ui_speed_units == "KPH":
+      ret.vEgoCluster = cp.vl["DI_speed"]["DI_uiSpeed"] * CV.KPH_TO_MS
+    elif ui_speed_units == "MPH":
+      ret.vEgoCluster = cp.vl["DI_speed"]["DI_uiSpeed"] * CV.MPH_TO_MS
 
     # Gas pedal
     pedal_status = cp.vl["DI_systemStatus"]["DI_accelPedalPos"]
@@ -110,7 +115,8 @@ class CarState(CarStateBase):
       ("IBST_status", 25),
       ("DI_state", 10),
       ("EPAS3S_sysStatus", 100),
-      ("UI_warning", 10)
+      ("UI_warning", 10),
+      ("DI_speed", 100),
     ]
 
     return CANParser(DBC[CP.carFingerprint]['chassis'], messages, CANBUS.party)
