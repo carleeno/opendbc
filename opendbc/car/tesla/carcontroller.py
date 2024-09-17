@@ -76,11 +76,11 @@ class CarController(CarControllerBase):
       can_sends.append(self.tesla_can.create_steering_control(apply_angle, lkas_enabled, (self.frame // 2) % 16))
 
     # Longitudinal control
-    if self.CP.openpilotLongitudinalControl and self.frame % 2 == 0:
+    if self.CP.openpilotLongitudinalControl and self.frame % 4 == 0:
       acc_state = CS.das_control["DAS_accState"]
       target_accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
-      target_speed = max(CS.out.vEgo + (target_accel * CarControllerParams.ACCEL_TO_SPEED_MULTIPLIER), 0)
-      counter = CS.das_control["DAS_controlCounter"]
+      target_speed = 10 if target_accel > 0 else 0
+      counter = (self.frame // 4) % 8
       can_sends.append(self.tesla_can.create_longitudinal_commands(acc_state, target_speed, target_accel, counter))
 
     # Sent cancel request only if ACC is enabled
