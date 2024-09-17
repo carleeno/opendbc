@@ -10,9 +10,9 @@ class CarInterface(CarInterfaceBase):
   @staticmethod
   def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, experimental_long, docs) -> structs.CarParams:
     ret.carName = "tesla"
-    # There is no safe way to do steer blending with user torque,
-    # so the steering behaves like autopilot. This is not
-    # how openpilot should be, hence dashcamOnly
+    # Steer blending with user torque is done virtually, and is limited to 2Nm of torque
+    # before it temporarily disables OP Lat control for higher user torque. This is not
+    # how openpilot typically works, hence dashcamOnly
     ret.dashcamOnly = False
 
     ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.tesla)]
